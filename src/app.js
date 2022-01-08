@@ -5,6 +5,7 @@ const geocode = require("./utils/geocode.js");
 const forecast = require("./utils/forecast.js");
 
 const app = express();
+const port = process.env.PORT || 3000;
 
 // Define paths for Express config
 const publicPath = path.join(__dirname, "../public");
@@ -38,26 +39,17 @@ app.get("/weather", (req, res) => {
     console.log(req.query.address);
     return res.send("Error: Invalid query.");
   }
-  geocode(
-    req.query.address,
-    (error, { latitude, longitude, location } = {}) => {
-      if (error) {
-        return res.send({ error });
-      }
-      forecast(latitude, longitude, (error, forecastData) => {
-        if (error) {
-          res.send({ error });
-        }
-        res.send({
-          forecast: forecastData.body.current.weather_descriptions,
-          location,
-          address: req.query.address,
-        });
-      });
-    }
-  );
+  forecast(req.query.address, (error, forecastData) => {
+    // if (error) {
+    //   res.send({ error });
+    // }
+    res.send({
+      forecast: forecastData.body.current.weather_descriptions,
+      // location,
+      address: req.query.address,
+    });
+  });
 });
-
 app.get("/about", (req, res) => {
   res.render("about", {
     title: "Weather App",
@@ -90,7 +82,6 @@ app.get("*", (req, res) => {
   res.render("error404", { title: "Weather App" });
 });
 
-const portNumber = 3000;
-app.listen(portNumber, () => {
-  console.log(`Server is up on port ${portNumber}`);
+app.listen(port, () => {
+  console.log(`Server is up on port ${port}`);
 });
